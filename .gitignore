@@ -98,7 +98,7 @@ cache/
 *.ckpt
 *.tar
 *.tar.gz
-*.npz
+# *.npz
 *.h5
 *.pth.tar
 *.ckpt.index

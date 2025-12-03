@@ -1,0 +1,136 @@
+# Common .gitignore for Python / ML projects (NeRF, etc.)
+
+# Byte-compiled / optimized
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+env/
+venv/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+pytest_cache/
+.pytest_cache/
+nosetests.xml
+coverage.xml
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+
+# Jupyter
+.ipynb_checkpoints
+*.ipynb_checkpoints
+
+# Pytype / mypy / pyre
+.mypy_cache/
+.pyre/
+.pytype/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs and databases
+*.log
+*.sql
+*.sqlite
+*.db
+
+# Environment files / secrets
+.env
+.env.*
+local_settings.py
+secrets.*
+*.pem
+*.key
+*.crt
+
+# Model checkpoints / outputs / data
+checkpoints/
+ckpts/
+models/
+weights/
+outputs/
+results/
+logs/
+runs/
+tb_logs/
+tensorboard/
+data/
+datasets/
+dataset/
+cache/
+*.pth
+*.pt
+*.ckpt
+*.tar
+*.tar.gz
+*.npz
+*.h5
+*.pth.tar
+*.ckpt.index
+
+# Compiled / binary files
+*.so
+*.o
+*.obj
+*.a
+*.dll
+
+# CUDA / GPU artifacts
+*.cubin
+*.ptx
+*.fatbin
+*.cu.o
+
+# C/C++ / build artifacts
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+build/
+dist/
+
+# Python packaging artifacts
+*.egg
+*.egg-info/
+.installed.cfg
+*.manifest
+*.spec
+
+# Misc
+coverage/
+.idea/

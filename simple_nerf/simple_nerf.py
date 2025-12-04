@@ -25,7 +25,7 @@ class NeRF(torch.nn.Module):
         x = self.layer3(x)
         return x
 
-
+# 位置编码 Todo: 尝试其他编码方式 甚至是不编码看看
 def posenc(x):
     """
     Positional encoding
@@ -44,6 +44,7 @@ def get_rays(H, W, focal, c2w):
     """
     def meshgrid_xy(tensor1, tensor2):
         i, j = torch.meshgrid(tensor1, tensor2, indexing="ij")
+        # indexing="ij"是矩阵形式indexing 而indexing="xy"是笛卡尔形式indexing
         return i.transpose(-1, -2), j.transpose(-1, -2)
     
     i, j = meshgrid_xy(
@@ -52,6 +53,7 @@ def get_rays(H, W, focal, c2w):
     )
     dirs = torch.stack([(i-W*0.5)/focal, -(j-H*0.5)/focal, -torch.ones_like(i)], dim=-1).to(device)
     rays_d = torch.sum(dirs[..., None, :] * c2w[:3, :3], dim=-1)
+    # None起到扩充维度的作用，(H, H, 3) -> (H, H, 1, 3), (1, 3) * (3, 3) -> (1, 3)
     rays_o = c2w[:3, -1].expand(rays_d.shape)
     return rays_o, rays_d
 
@@ -61,6 +63,8 @@ def render_rays(network_fn, rays_o, rays_d, near, far, N_samples, rand=False):
     """
     def batchify(fn, chunk=1024*32):
         return lambda inputs : torch.cat([fn(inputs[i:i+chunk]) for i in range(0, inputs.shape[0], chunk)], dim=0)
+        # pts_flat太大了(640000, 39)，一次性放进显存可能会爆
+        # 所以分块然后用lamdba函数把分块的结果拼起来
     
     def exclusive_cumprod(tensor):
         cumprod = torch.cumprod(tensor, dim=-1)
@@ -72,11 +76,16 @@ def render_rays(network_fn, rays_o, rays_d, near, far, N_samples, rand=False):
     z_vals = torch.linspace(near, far, N_samples).to(device)
     if rand:
         z_vals = z_vals + torch.rand(list(rays_o.shape[:-1]) + [N_samples]).to(device) * (far-near)/N_samples
+        # 使得每个像素对应的光线上的采样点都不完全均匀
+        
     pts = rays_o[..., None, :] + rays_d[..., None, :] * z_vals[..., :, None]
 
     # Run network
     pts_flat = torch.reshape(pts, [-1, 3])
+    # 把pts (100x100x64x3) 变成pts_flat (640000*3)再拿去位置编码
+    # 问题来了，为什么要位置编码？
     pts_flat = embed_fn(pts_flat)
+    
     raw = batchify(network_fn)(pts_flat)
     raw = torch.reshape(raw, list(pts.shape[:-1]) + [4])
     
@@ -95,7 +104,7 @@ def render_rays(network_fn, rays_o, rays_d, near, far, N_samples, rand=False):
     return rgb_map, depth_map, acc_map
 
 if __name__ == "__main__":
-    data = np.load('tiny_nerf_data.npz')
+    data = np.load('/home/chenrui/Projects/3d-lab/simple_nerf/tiny_nerf_data.npz')
     images = data['images']
     poses = data['poses']
     focal = data['focal']
@@ -108,7 +117,7 @@ if __name__ == "__main__":
 
     # Define test set, training set
     testimg, testpose = images[101], poses[101]
-    images = images[:100,...,:3]
+    images = images[:100,...,:3] # 这里:3是为了保证只取前三个通道，不取可能的alpha通道
     poses = poses[:100]
 
     # Hyperparameters
